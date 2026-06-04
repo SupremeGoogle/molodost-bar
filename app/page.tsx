@@ -6,6 +6,7 @@ import Gallery from '@/components/Gallery'
 import PriceMenu from '@/components/PriceMenu'
 import WorkingHours from '@/components/WorkingHours'
 import Reviews from '@/components/Reviews'
+import LeadForm from '@/components/LeadForm'
 import Contacts from '@/components/Contacts'
 import Footer from '@/components/Footer'
 
@@ -24,6 +25,7 @@ export default function Home() {
         <PriceMenu data={data.price} />
         <WorkingHours data={data.hours} />
         <Reviews data={data.reviews} />
+        <LeadForm />
         <Contacts data={data.contacts} />
       </main>
       <Footer footer={data.footer} contacts={data.contacts} />

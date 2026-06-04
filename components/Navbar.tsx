@@ -8,6 +8,7 @@ const links = [
   { href: '#gallery', label: 'Галерея' },
   { href: '#menu', label: 'Меню' },
   { href: '#hours', label: 'Часы' },
+  { href: '#booking', label: 'Бронь', highlight: true },
   { href: '#contacts', label: 'Контакты' },
 ]
 
@@ -33,12 +34,16 @@ export default function Navbar() {
         </a>
 
         {/* Desktop links */}
-        <ul className="hidden md:flex items-center gap-8">
+        <ul className="hidden md:flex items-center gap-6">
           {links.map((l) => (
             <li key={l.href}>
               <a
                 href={l.href}
-                className="font-pt text-sm uppercase tracking-widest text-white/70 hover:text-soviet-red transition-colors duration-200"
+                className={
+                  (l as { highlight?: boolean }).highlight
+                    ? 'px-4 py-1.5 bg-soviet-red font-russo text-xs uppercase tracking-widest text-white hover:bg-dark-red transition-colors duration-200'
+                    : 'font-pt text-sm uppercase tracking-widest text-white/70 hover:text-soviet-red transition-colors duration-200'
+                }
               >
                 {l.label}
               </a>
