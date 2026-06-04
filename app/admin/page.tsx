@@ -15,7 +15,13 @@ type SiteData = {
   admin: { google_sheets_url: string }
 }
 
-type Tab = 'hero' | 'gallery' | 'price' | 'hours' | 'reviews' | 'contacts' | 'system'
+type Tab = 'leads' | 'hero' | 'gallery' | 'price' | 'hours' | 'reviews' | 'contacts' | 'system'
+
+interface Lead {
+  id: string; createdAt: string; status: 'new' | 'called' | 'done'
+  name: string; phone: string; type: string
+  guests?: string; date?: string; message?: string; source?: string
+}
 
 type EnvStatus = { ok: boolean; hint: string }
 type DebugResult = { allOk: boolean; vars: Record<string, EnvStatus> } | null
@@ -46,6 +52,8 @@ export default function AdminPage() {
   const [debugData, setDebugData] = useState<DebugResult>(null)
   const [debugLoading, setDebugLoading] = useState(false)
   const [testResult, setTestResult] = useState<Record<string, string>>({})
+  const [leads, setLeads] = useState<Lead[]>([])
+  const [leadsLoading, setLeadsLoading] = useState(false)
 
   useEffect(() => {
     if (sessionStorage.getItem('admin_auth') === '1') setAuthed(true)
@@ -56,6 +64,11 @@ export default function AdminPage() {
       fetch('/api/content').then((r) => r.json()).then(setData)
     }
   }, [authed, data])
+
+  useEffect(() => {
+    if (authed && tab === 'leads') loadLeads()
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [authed, tab])
 
   const login = async () => {
     setLoginLoading(true)
@@ -229,7 +242,20 @@ export default function AdminPage() {
     )
   }
 
+  const loadLeads = async () => {
+    setLeadsLoading(true)
+    const res = await fetch('/api/lead')
+    setLeads(await res.json())
+    setLeadsLoading(false)
+  }
+
+  const updateLeadStatus = async (id: string, status: Lead['status']) => {
+    await fetch('/api/lead', { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id, status }) })
+    setLeads((prev) => prev.map((l) => l.id === id ? { ...l, status } : l))
+  }
+
   const tabs: { id: Tab; label: string }[] = [
+    { id: 'leads', label: '📥 Заявки' },
     { id: 'hero', label: 'Главная' },
     { id: 'gallery', label: 'Галерея' },
     { id: 'price', label: 'Прайс' },
@@ -278,6 +304,77 @@ export default function AdminPage() {
             <Pill key={t.id} label={t.label} active={tab === t.id} onClick={() => setTab(t.id)} />
           ))}
         </div>
+
+        {/* ===== LEADS ===== */}
+        {tab === 'leads' && (
+          <div className="space-y-6">
+            <div className="flex items-center justify-between border-b border-soviet-red/30 pb-3">
+              <h2 className="font-russo text-xl uppercase text-aged-cream tracking-wider">📥 Заявки с сайта</h2>
+              <button onClick={loadLeads} disabled={leadsLoading}
+                className="px-4 py-2 border border-white/20 font-russo text-xs uppercase tracking-widest text-white/50 hover:border-soviet-red hover:text-soviet-red transition-colors disabled:opacity-40">
+                {leadsLoading ? 'Загружаю...' : '🔄 Обновить'}
+              </button>
+            </div>
+
+            {leads.length === 0 && !leadsLoading && (
+              <div className="text-center py-20 border border-dashed border-white/10">
+                <p className="font-russo text-2xl text-white/10 uppercase mb-3">Нет заявок</p>
+                <p className="font-pt text-sm text-white/25">Нажмите «Обновить» или оставьте тестовую заявку на сайте</p>
+              </div>
+            )}
+
+            {leads.map((lead) => {
+              const statusColors: Record<Lead['status'], string> = {
+                new: 'border-soviet-red text-soviet-red',
+                called: 'border-yellow-500 text-yellow-400',
+                done: 'border-green-500 text-green-400',
+              }
+              const statusLabels: Record<Lead['status'], string> = { new: 'Новая', called: 'Позвонили', done: 'Готово' }
+              const date = new Date(lead.createdAt)
+              const dateStr = `${date.getDate().toString().padStart(2,'0')}.${(date.getMonth()+1).toString().padStart(2,'0')} ${date.getHours().toString().padStart(2,'0')}:${date.getMinutes().toString().padStart(2,'0')}`
+
+              return (
+                <div key={lead.id} className={`border p-5 relative transition-colors duration-200 ${
+                  lead.status === 'new' ? 'border-soviet-red/40 bg-soviet-red/3' :
+                  lead.status === 'called' ? 'border-yellow-500/30' : 'border-white/8 opacity-60'
+                }`}>
+                  <div className="flex flex-wrap items-start gap-4 justify-between">
+                    <div>
+                      <div className="flex items-center gap-3 mb-2">
+                        <span className="font-russo text-lg text-aged-cream">{lead.name}</span>
+                        <span className={`text-xs font-russo uppercase px-2 py-0.5 border ${statusColors[lead.status]}`}>
+                          {statusLabels[lead.status]}
+                        </span>
+                      </div>
+                      <a href={`tel:${lead.phone.replace(/\D/g,'')}`}
+                        className="font-russo text-xl text-soviet-red hover:underline block mb-3">
+                        {lead.phone}
+                      </a>
+                      <div className="flex flex-wrap gap-x-6 gap-y-1 font-pt text-sm text-white/40">
+                        <span>📋 {lead.type}</span>
+                        {lead.guests && <span>👥 {lead.guests} гостей</span>}
+                        {lead.date && <span>📅 {lead.date}</span>}
+                        {lead.message && <span className="block w-full text-white/30 italic">«{lead.message}»</span>}
+                      </div>
+                    </div>
+                    <div className="flex flex-col items-end gap-2">
+                      <span className="font-pt text-xs text-white/25">{dateStr}</span>
+                      <div className="flex gap-2">
+                        {(['new', 'called', 'done'] as Lead['status'][]).map((s) => (
+                          <button key={s} onClick={() => updateLeadStatus(lead.id, s)}
+                            disabled={lead.status === s}
+                            className={`px-2.5 py-1 font-russo text-[10px] uppercase tracking-wider border transition-colors disabled:opacity-30 ${statusColors[s]}`}>
+                            {statusLabels[s]}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )
+            })}
+          </div>
+        )}
 
         {/* ===== HERO ===== */}
         {tab === 'hero' && (
