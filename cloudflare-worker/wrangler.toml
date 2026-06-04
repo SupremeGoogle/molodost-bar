@@ -6,8 +6,9 @@ compatibility_date = "2024-09-23"
 # После `wrangler kv:namespace create SUBSCRIBERS` — вставить id ниже
 [[kv_namespaces]]
 binding = "SUBSCRIBERS"
-id = "ВСТАВИТЬ_KV_NAMESPACE_ID"
+id = "9ebfc9a0c70d4d12a18c859fea193621"
 
 # Секреты задаются командой:
 #   wrangler secret put TELEGRAM_BOT_TOKEN
 #   wrangler secret put BROADCAST_SECRET
+
