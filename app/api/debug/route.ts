@@ -5,7 +5,7 @@ export async function GET() {
     val && !val.includes('ВСТАВИТЬ') && !val.includes('ПРИДУМАТЬ') && val.length > 5
 
   const vars = {
-    GITHUB_TOKEN:              { ok: check(process.env.GITHUB_TOKEN),              hint: 'Токен GitHub' },
+    GITHUB_TOKEN:              { ok: check(process.env.GITHUB_TOKEN),              hint: 'Токен доступа к репозиторию' },
     ADMIN_PASSWORD:            { ok: check(process.env.ADMIN_PASSWORD),            hint: 'Пароль админки' },
     GOOGLE_SCRIPT_URL:         { ok: check(process.env.GOOGLE_SCRIPT_URL),         hint: 'URL Google Apps Script (нужно задеплоить скрипт)' },
     CLOUDFLARE_WORKER_URL:     { ok: check(process.env.CLOUDFLARE_WORKER_URL),     hint: 'URL Cloudflare Worker' },

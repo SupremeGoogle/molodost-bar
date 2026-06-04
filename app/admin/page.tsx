@@ -106,7 +106,7 @@ export default function AdminPage() {
 
   const save = async () => {
     if (!data) return
-    setStatus({ type: 'saving', msg: 'Сохраняю и отправляю в GitHub...' })
+    setStatus({ type: 'saving', msg: 'Сохраняю...' })
     try {
       const res = await fetch('/api/push', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ data }) })
       const json = await res.json()
@@ -288,7 +288,7 @@ export default function AdminPage() {
               disabled={status.type === 'saving'}
               className="px-6 py-2 bg-soviet-red font-russo text-xs uppercase tracking-widest text-white hover:bg-dark-red disabled:opacity-50 transition-colors flex items-center gap-2"
             >
-              {status.type === 'saving' ? '⏳ Сохраняю...' : '💾 Сохранить → GitHub'}
+              {status.type === 'saving' ? '⏳ Сохраняю...' : '💾 Сохранить'}
             </button>
             <a href="/" target="_blank" className="px-4 py-2 border border-white/20 font-russo text-xs uppercase tracking-widest text-white/50 hover:border-soviet-red hover:text-soviet-red transition-colors">
               Сайт ↗
@@ -669,7 +669,7 @@ export default function AdminPage() {
             disabled={status.type === 'saving'}
             className="px-8 py-4 bg-soviet-red font-russo text-sm uppercase tracking-widest text-white hover:bg-dark-red disabled:opacity-50 transition-colors"
           >
-            {status.type === 'saving' ? '⏳ Отправляю в GitHub...' : '💾 Сохранить всё и пуш в GitHub'}
+            {status.type === 'saving' ? '⏳ Сохраняю...' : '💾 Сохранить всё'}
           </button>
         </div>
       </div>

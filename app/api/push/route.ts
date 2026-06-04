@@ -17,7 +17,7 @@ export async function POST(req: Request) {
       '🔧 Admin: update site content'
     )
 
-    return NextResponse.json({ ok: true, message: 'Изменения сохранены и отправлены в GitHub!' })
+    return NextResponse.json({ ok: true, message: 'Изменения сохранены!' })
   } catch (err) {
     const message = err instanceof Error ? err.message : 'Unknown error'
     return NextResponse.json({ error: message }, { status: 500 })
