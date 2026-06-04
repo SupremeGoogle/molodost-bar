@@ -6,125 +6,77 @@
   --soviet-red: #C00020;
   --soviet-dark: #0D0D0D;
   --aged-cream: #F0E8D5;
-  --soviet-gold: #C9A84C;
 }
 
-* {
-  box-sizing: border-box;
-}
-
-html {
-  scroll-behavior: smooth;
-}
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
 
 body {
   background: var(--soviet-dark);
-  color: #f0ebe3;
+  color: #e8e0d4;
   font-family: var(--font-pt), 'PT Sans', sans-serif;
   overflow-x: hidden;
 }
 
 h1, h2, h3, h4 {
   font-family: var(--font-russo), 'Russo One', sans-serif;
-  letter-spacing: 0.02em;
 }
 
-/* Film grain overlay */
+/* Heavy film grain overlay */
 body::after {
   content: '';
   position: fixed;
   inset: 0;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
-  opacity: 0.035;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  opacity: 0.045;
   pointer-events: none;
-  z-index: 9999;
+  z-index: 9998;
   mix-blend-mode: overlay;
 }
 
-/* Red divider */
+/* Selection */
+::selection { background: var(--soviet-red); color: #fff; }
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: #0D0D0D; }
+::-webkit-scrollbar-thumb { background: var(--soviet-red); }
+
+.section-title {
+  font-family: var(--font-russo), 'Russo One', sans-serif;
+  font-size: clamp(2.2rem, 5vw, 4rem);
+  text-transform: uppercase;
+  letter-spacing: 0.01em;
+  line-height: 1;
+}
+
 .red-divider {
-  width: 60px;
-  height: 3px;
+  width: 40px;
+  height: 2px;
   background: var(--soviet-red);
   margin: 0 auto 2rem;
 }
 
-/* Soviet star */
-.star {
-  color: var(--soviet-red);
-  font-size: 1.2rem;
-}
-
-/* Section heading */
-.section-title {
-  font-family: var(--font-russo), 'Russo One', sans-serif;
-  font-size: clamp(2rem, 5vw, 3.5rem);
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  line-height: 1.1;
-}
-
-/* Aged paper texture background */
+/* Aged paper */
 .aged-paper {
-  background-color: #F0E8D5;
-  color: #1a1a1a;
+  background-color: #EDE4D1;
+  color: #1a1209;
   position: relative;
 }
-.aged-paper::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.4' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.08'/%3E%3C/svg%3E");
-  pointer-events: none;
-}
 
-/* Scrollbar */
-::-webkit-scrollbar { width: 6px; }
-::-webkit-scrollbar-track { background: #0D0D0D; }
-::-webkit-scrollbar-thumb { background: var(--soviet-red); border-radius: 3px; }
-
-/* Image lightbox overlay */
+/* Lightbox */
 .lightbox-overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.92);
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,0.95);
   z-index: 10000;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
 }
 
-/* Neon glow effect */
-.neon-red {
-  text-shadow: 0 0 10px rgba(192, 0, 32, 0.8), 0 0 20px rgba(192, 0, 32, 0.5), 0 0 40px rgba(192, 0, 32, 0.3);
-}
+@keyframes blink { 0%,100% { opacity:1 } 50% { opacity:0.3 } }
+.blink { animation: blink 1.8s ease-in-out infinite; }
 
-/* Soviet border */
-.soviet-border {
-  border: 2px solid var(--soviet-red);
-  position: relative;
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(24px); }
+  to   { opacity: 1; transform: translateY(0); }
 }
-.soviet-border::before, .soviet-border::after {
-  content: '★';
-  color: var(--soviet-red);
-  position: absolute;
-  top: -12px;
-  font-size: 20px;
-}
-.soviet-border::before { left: 20px; }
-.soviet-border::after { right: 20px; }
-
-@keyframes blink {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.4; }
-}
-
-.blink {
-  animation: blink 2s ease-in-out infinite;
-}
-
-@keyframes scanline {
-  0% { transform: translateY(-100%); }
-  100% { transform: translateY(100vh); }
-}
+.animate-fade-up { animation: fadeUp 0.7s ease-out forwards; }

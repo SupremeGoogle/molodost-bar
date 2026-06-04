@@ -11,45 +11,76 @@ interface AboutData {
 
 export default function About({ data }: { data: AboutData }) {
   return (
-    <section id="about" className="bg-soviet-dark2 py-24 relative overflow-hidden">
-      {/* Background accent */}
-      <div className="absolute left-0 top-0 bottom-0 w-1 bg-soviet-red" />
+    <section id="about">
 
-      <div className="max-w-6xl mx-auto px-6">
-        <div className="text-center mb-16">
-          <p className="font-pt text-xs uppercase tracking-[0.3em] text-soviet-red mb-4">
-            ★ Кафе-бар · Липецк ★
-          </p>
-          <h2 className="section-title text-aged-cream mb-6">О нас</h2>
-          <div className="red-divider" />
-          <p className="font-pt text-lg text-white/60 max-w-2xl mx-auto leading-relaxed">
-            {data.text}
-          </p>
-        </div>
-
-        {/* Feature cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-px bg-soviet-red/20">
-          {data.features.map((f, i) => (
-            <div
-              key={i}
-              className="bg-soviet-dark2 p-8 text-center group hover:bg-soviet-dark transition-colors duration-300"
-            >
-              <div className="text-soviet-red text-3xl mb-4 group-hover:scale-110 transition-transform duration-300">
-                {f.icon}
-              </div>
-              <h3 className="font-russo text-lg uppercase text-aged-cream mb-3 tracking-wider">
-                {f.title}
-              </h3>
-              <p className="font-pt text-sm text-white/50 leading-relaxed">{f.text}</p>
+      {/* Soviet propaganda banner — full red */}
+      <div className="bg-soviet-red py-10 px-6 overflow-hidden relative">
+        <div
+          className="absolute inset-0 opacity-10"
+          style={{
+            backgroundImage: 'repeating-linear-gradient(90deg, #fff 0px, #fff 1px, transparent 1px, transparent 60px)',
+          }}
+        />
+        <div className="max-w-screen-xl mx-auto flex flex-wrap items-center justify-center gap-4 md:gap-12 relative z-10">
+          {['Оригинальные Настойки', 'Еда по ГоСТУ', 'Хиты твоей молодости'].map((s, i) => (
+            <div key={i} className="flex items-center gap-4">
+              {i > 0 && <span className="hidden md:block text-white/30 text-2xl">★</span>}
+              <span className="font-russo text-lg md:text-2xl uppercase text-white tracking-wide text-center">
+                {s}
+              </span>
             </div>
           ))}
         </div>
+      </div>
 
-        {/* Soviet-style quote */}
-        <div className="mt-16 text-center border-t border-b border-soviet-red/20 py-8">
-          <p className="font-russo text-2xl md:text-3xl text-soviet-red uppercase tracking-wider">
-            «Молодость прощает всё!»
-          </p>
+      {/* Main about block */}
+      <div className="bg-soviet-dark">
+        <div className="max-w-screen-xl mx-auto grid grid-cols-1 md:grid-cols-12">
+
+          {/* Left: huge quote */}
+          <div className="md:col-span-5 border-r border-white/6 p-10 md:p-16 flex flex-col justify-center">
+            <p className="font-pt text-[11px] uppercase tracking-[0.35em] text-soviet-red mb-6">
+              ★ О заведении
+            </p>
+            <blockquote
+              className="font-russo text-3xl md:text-4xl text-aged-cream leading-tight uppercase"
+              style={{ letterSpacing: '0.01em' }}
+            >
+              «Молодость<br />
+              <span className="text-soviet-red">прощает</span><br />
+              всё!»
+            </blockquote>
+            <div className="w-10 h-0.5 bg-soviet-red mt-8 mb-6" />
+            <p className="font-pt text-sm text-white/45 leading-relaxed">
+              {data.text}
+            </p>
+          </div>
+
+          {/* Right: three features */}
+          <div className="md:col-span-7">
+            {data.features.map((f, i) => (
+              <div
+                key={i}
+                className={`flex gap-8 p-10 md:p-12 border-b border-white/6 last:border-0 group hover:bg-white/2 transition-colors duration-300`}
+              >
+                {/* Number */}
+                <div className="flex-shrink-0">
+                  <span
+                    className="font-russo text-6xl md:text-7xl leading-none text-white/6 group-hover:text-soviet-red/20 transition-colors duration-300"
+                    style={{ letterSpacing: '-0.04em' }}
+                  >
+                    0{i + 1}
+                  </span>
+                </div>
+                <div className="pt-1">
+                  <h3 className="font-russo text-lg uppercase text-aged-cream tracking-wider mb-3">
+                    {f.title}
+                  </h3>
+                  <p className="font-pt text-sm text-white/40 leading-relaxed">{f.text}</p>
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
       </div>
     </section>

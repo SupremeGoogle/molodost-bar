@@ -1,6 +1,7 @@
 'use client'
 
 import Image from 'next/image'
+import { useEffect, useState } from 'react'
 
 interface HeroData {
   tagline: string
@@ -8,92 +9,114 @@ interface HeroData {
 }
 
 export default function Hero({ data }: { data: HeroData }) {
+  const [mounted, setMounted] = useState(false)
+  useEffect(() => setMounted(true), [])
+
   return (
-    <section
-      id="hero"
-      className="relative min-h-screen flex flex-col items-center justify-center bg-soviet-dark overflow-hidden"
-    >
-      {/* Background radial glow */}
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_rgba(192,0,32,0.12)_0%,_transparent_70%)]" />
+    <section id="hero" className="relative min-h-screen overflow-hidden bg-black">
+      {/* Background — ковёр на стене (фото интерьера) */}
+      <Image
+        src="/gallery/photo2.jpg"
+        alt=""
+        fill
+        priority
+        className="object-cover object-center scale-105"
+        style={{ filter: 'saturate(0.7) brightness(0.35)' }}
+      />
 
-      {/* Top red stripe */}
-      <div className="absolute top-0 left-0 right-0 h-1 bg-soviet-red" />
-
-      {/* Diagonal dark overlay lines — Soviet constructivism feel */}
-      <div className="absolute inset-0 opacity-5"
+      {/* Diagonal red constructivist slab */}
+      <div
+        className="absolute inset-0 pointer-events-none"
         style={{
-          backgroundImage: 'repeating-linear-gradient(45deg, #fff 0px, #fff 1px, transparent 1px, transparent 30px)',
+          background: 'linear-gradient(105deg, rgba(192,0,32,0.18) 0%, transparent 55%)',
         }}
       />
 
-      <div className="relative z-10 flex flex-col items-center text-center px-4 py-32 max-w-4xl mx-auto">
-        {/* Logo */}
-        <div className="mb-8 animate-fade-up" style={{ animationDelay: '0.1s', animationFillMode: 'both' }}>
-          <Image
-            src="/logo.jpg"
-            alt="Молодость Кафе-бар"
-            width={280}
-            height={100}
-            className="w-64 md:w-80 object-contain"
-            priority
-          />
+      {/* Top red banner stripe */}
+      <div className="absolute top-0 left-0 right-0 h-1.5 bg-soviet-red z-20" />
+
+      {/* Vertical red left accent */}
+      <div className="absolute top-0 left-0 bottom-0 w-1 bg-soviet-red/60 z-20" />
+
+      {/* Content — left-aligned, full editorial */}
+      <div className="relative z-10 min-h-screen flex flex-col justify-center px-8 md:px-16 lg:px-24 max-w-screen-xl mx-auto">
+
+        {/* City / year badge */}
+        <div
+          className={`flex items-center gap-4 mb-10 transition-all duration-700 ${mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}
+          style={{ transitionDelay: '100ms' }}
+        >
+          <div className="w-12 h-px bg-soviet-red" />
+          <span className="font-pt text-xs uppercase tracking-[0.45em] text-white/40">
+            Кафе-бар · Липецк
+          </span>
         </div>
 
-        {/* Red star divider */}
+        {/* Giant title */}
         <div
-          className="flex items-center gap-3 mb-6 animate-fade-up"
-          style={{ animationDelay: '0.3s', animationFillMode: 'both' }}
+          className={`transition-all duration-700 ${mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'}`}
+          style={{ transitionDelay: '200ms' }}
         >
-          <div className="w-16 h-px bg-soviet-red" />
-          <span className="text-soviet-red text-2xl">★</span>
-          <div className="w-16 h-px bg-soviet-red" />
+          <h1
+            className="font-russo uppercase leading-[0.82] text-white"
+            style={{ fontSize: 'clamp(5rem, 18vw, 18rem)', letterSpacing: '-0.02em' }}
+          >
+            МО<span className="text-soviet-red">ЛО</span>
+            <br />ДОСТЬ
+          </h1>
         </div>
 
-        {/* Main tagline */}
-        <h1
-          className="font-russo text-6xl md:text-8xl lg:text-9xl uppercase text-aged-cream leading-none tracking-tight animate-fade-up"
-          style={{ animationDelay: '0.4s', animationFillMode: 'both' }}
-        >
-          Молодость{' '}
-          <span className="text-soviet-red neon-red">{data.tagline}</span>
-        </h1>
-
-        {/* Description */}
-        <p
-          className="mt-8 font-pt text-base md:text-xl text-white/60 tracking-widest uppercase animate-fade-up"
-          style={{ animationDelay: '0.6s', animationFillMode: 'both' }}
-        >
-          {data.description}
-        </p>
-
-        {/* CTA Buttons */}
+        {/* Tagline */}
         <div
-          className="flex flex-col sm:flex-row gap-4 mt-12 animate-fade-up"
-          style={{ animationDelay: '0.8s', animationFillMode: 'both' }}
+          className={`mt-4 flex items-center gap-6 transition-all duration-700 ${mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}
+          style={{ transitionDelay: '350ms' }}
         >
+          <div className="w-0.5 h-14 bg-soviet-red" />
+          <div>
+            <p className="font-russo text-2xl md:text-4xl text-aged-cream uppercase tracking-wide leading-tight">
+              {data.tagline}
+            </p>
+            <p className="font-pt text-xs md:text-sm text-white/40 uppercase tracking-[0.35em] mt-2">
+              {data.description}
+            </p>
+          </div>
+        </div>
+
+        {/* CTA */}
+        <div
+          className={`flex flex-wrap gap-4 mt-14 transition-all duration-700 ${mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}
+          style={{ transitionDelay: '500ms' }}
+        >
+          <a
+            href="#booking"
+            className="px-10 py-4 bg-soviet-red font-russo text-sm uppercase tracking-widest text-white hover:bg-dark-red transition-colors duration-200"
+          >
+            Забронировать
+          </a>
           <a
             href="#menu"
-            className="px-8 py-3.5 bg-soviet-red font-russo text-sm uppercase tracking-widest text-white hover:bg-dark-red transition-colors duration-200"
+            className="px-10 py-4 border border-white/25 font-russo text-sm uppercase tracking-widest text-white/70 hover:border-soviet-red hover:text-soviet-red transition-colors duration-200"
           >
-            Наше меню
-          </a>
-          <a
-            href="#contacts"
-            className="px-8 py-3.5 border border-white/30 font-russo text-sm uppercase tracking-widest text-white/80 hover:border-soviet-red hover:text-soviet-red transition-colors duration-200"
-          >
-            Найти нас
+            Меню
           </a>
         </div>
-      </div>
 
-      {/* Bottom scroll indicator */}
-      <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 animate-bounce">
-        <span className="font-pt text-xs uppercase tracking-widest text-white/30">Листай</span>
-        <div className="w-px h-8 bg-gradient-to-b from-soviet-red to-transparent" />
+        {/* Bottom info bar */}
+        <div
+          className={`absolute bottom-8 left-8 md:left-16 lg:left-24 right-8 flex justify-between items-end transition-all duration-700 ${mounted ? 'opacity-100' : 'opacity-0'}`}
+          style={{ transitionDelay: '700ms' }}
+        >
+          <p className="font-pt text-[11px] text-white/25 uppercase tracking-widest">
+            ул. А.Г. Стаханова, 49А · +7 (4742) 39-03-93
+          </p>
+          <div className="flex flex-col items-center gap-1">
+            <div className="w-px h-10 bg-gradient-to-b from-soviet-red to-transparent" />
+            <span className="font-pt text-[10px] text-white/20 uppercase tracking-widest rotate-0">
+              scroll
+            </span>
+          </div>
+        </div>
       </div>
-
-      {/* Bottom red stripe */}
-      <div className="absolute bottom-0 left-0 right-0 h-px bg-soviet-red/40" />
     </section>
   )
 }
