@@ -3,8 +3,6 @@
 import { useState, useEffect, useRef } from 'react'
 import Image from 'next/image'
 
-const PASSWORD = 'molodost062026'
-
 type SiteData = {
   hero: { tagline: string; description: string }
   about: { text: string; features: { icon: string; title: string; text: string }[] }
@@ -34,7 +32,8 @@ function Pill({ label, active, onClick }: { label: string; active: boolean; onCl
 export default function AdminPage() {
   const [authed, setAuthed] = useState(false)
   const [pwd, setPwd] = useState('')
-  const [pwdError, setPwdError] = useState(false)
+  const [pwdError, setPwdError] = useState('')
+  const [loginLoading, setLoginLoading] = useState(false)
   const [data, setData] = useState<SiteData | null>(null)
   const [tab, setTab] = useState<Tab>('hero')
   const [status, setStatus] = useState<{ type: 'idle' | 'saving' | 'ok' | 'error'; msg: string }>({ type: 'idle', msg: '' })
@@ -51,13 +50,26 @@ export default function AdminPage() {
     }
   }, [authed, data])
 
-  const login = () => {
-    if (pwd === PASSWORD) {
-      sessionStorage.setItem('admin_auth', '1')
-      setAuthed(true)
-      setPwdError(false)
-    } else {
-      setPwdError(true)
+  const login = async () => {
+    setLoginLoading(true)
+    setPwdError('')
+    try {
+      const res = await fetch('/api/auth', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ password: pwd }),
+      })
+      const json = await res.json()
+      if (json.ok) {
+        sessionStorage.setItem('admin_auth', '1')
+        setAuthed(true)
+      } else {
+        setPwdError(json.error || 'Неверный пароль')
+      }
+    } catch {
+      setPwdError('Ошибка соединения')
+    } finally {
+      setLoginLoading(false)
     }
   }
 
@@ -161,12 +173,13 @@ export default function AdminPage() {
               placeholder="••••••••••••"
               autoFocus
             />
-            {pwdError && <p className="font-pt text-xs text-soviet-red mt-2">Неверный пароль</p>}
+            {pwdError && <p className="font-pt text-xs text-soviet-red mt-2">{pwdError}</p>}
             <button
               onClick={login}
-              className="mt-6 w-full bg-soviet-red py-3 font-russo text-sm uppercase tracking-widest text-white hover:bg-dark-red transition-colors"
+              disabled={loginLoading}
+              className="mt-6 w-full bg-soviet-red py-3 font-russo text-sm uppercase tracking-widest text-white hover:bg-dark-red disabled:opacity-60 transition-colors"
             >
-              Войти
+              {loginLoading ? 'Проверяю...' : 'Войти'}
             </button>
           </div>
           <p className="text-center font-pt text-xs text-white/20 mt-6 uppercase tracking-widest">
