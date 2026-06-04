@@ -3,6 +3,10 @@ import fs from 'fs'
 import path from 'path'
 import { pushFile } from '@/lib/github'
 
+const GITHUB_TOKEN = process.env.GITHUB_TOKEN
+const GITHUB_OWNER = process.env.GITHUB_OWNER || 'SupremeGoogle'
+const GITHUB_REPO = process.env.GITHUB_REPO || 'molodost-bar'
+
 interface LeadData {
   name: string
   phone: string
@@ -83,8 +87,29 @@ async function broadcastTelegram(message: string) {
   }).catch(() => null)
 }
 
+async function fetchLeadsFromGitHub(): Promise<Lead[]> {
+  try {
+    const res = await fetch(
+      `https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/content/leads.json`,
+      {
+        headers: {
+          Authorization: `Bearer ${GITHUB_TOKEN}`,
+          Accept: 'application/vnd.github.v3.raw',
+        },
+      }
+    )
+    if (!res.ok) return []
+    return JSON.parse(await res.text())
+  } catch {
+    return []
+  }
+}
+
 export async function GET() {
-  const leads = readLeads()
+  let leads = readLeads()
+  if (leads.length === 0 && GITHUB_TOKEN) {
+    leads = await fetchLeadsFromGitHub()
+  }
   return NextResponse.json(leads)
 }
 
