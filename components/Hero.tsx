@@ -14,14 +14,14 @@ export default function Hero({ data }: { data: HeroData }) {
 
   return (
     <section id="hero" className="relative min-h-screen overflow-hidden bg-black">
-      {/* Background — ковёр на стене (фото интерьера) */}
+      {/* Background — ковёр */}
       <Image
-        src="/gallery/photo2.jpg"
+        src="/ковер.jpg"
         alt=""
         fill
         priority
         className="object-cover object-center scale-105"
-        style={{ filter: 'saturate(0.7) brightness(0.35)' }}
+        style={{ filter: 'saturate(0.6) brightness(0.30)' }}
       />
 
       {/* Diagonal red constructivist slab */}

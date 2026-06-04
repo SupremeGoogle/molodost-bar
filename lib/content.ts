@@ -9,5 +9,9 @@ export function getContent() {
 }
 
 export function saveContent(data: unknown) {
-  fs.writeFileSync(DATA_PATH, JSON.stringify(data, null, 2), 'utf-8')
+  try {
+    fs.writeFileSync(DATA_PATH, JSON.stringify(data, null, 2), 'utf-8')
+  } catch (err: any) {
+    if (err?.code !== 'EROFS') throw err
+  }
 }

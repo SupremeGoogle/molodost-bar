@@ -308,12 +308,26 @@ export default function AdminPage() {
         {/* ===== LEADS ===== */}
         {tab === 'leads' && (
           <div className="space-y-6">
-            <div className="flex items-center justify-between border-b border-soviet-red/30 pb-3">
+            <div className="flex flex-wrap items-center justify-between gap-3 border-b border-soviet-red/30 pb-3">
               <h2 className="font-russo text-xl uppercase text-aged-cream tracking-wider">📥 Заявки с сайта</h2>
-              <button onClick={loadLeads} disabled={leadsLoading}
-                className="px-4 py-2 border border-white/20 font-russo text-xs uppercase tracking-widest text-white/50 hover:border-soviet-red hover:text-soviet-red transition-colors disabled:opacity-40">
-                {leadsLoading ? 'Загружаю...' : '🔄 Обновить'}
-              </button>
+              <div className="flex gap-2 flex-wrap">
+                <button onClick={loadLeads} disabled={leadsLoading}
+                  className="px-4 py-2 border border-white/20 font-russo text-xs uppercase tracking-widest text-white/50 hover:border-soviet-red hover:text-soviet-red transition-colors disabled:opacity-40">
+                  {leadsLoading ? 'Загружаю...' : '🔄 Обновить'}
+                </button>
+                <button
+                  onClick={() => {
+                    const csvUrl = `${window.location.origin}/api/leads.csv?token=${encodeURIComponent(prompt('Введите пароль админки:') || '')}`
+                    const sheetsUrl = `https://docs.google.com/spreadsheets/create`
+                    navigator.clipboard.writeText(`=IMPORTDATA("${csvUrl}")`)
+                    window.open(sheetsUrl, '_blank')
+                    alert('Формула скопирована!\n\nВ Google Таблице:\n1. Вставь формулу в ячейку A1 (Ctrl+V)\n2. Таблица будет автообновляться')
+                  }}
+                  className="px-4 py-2 border border-green-500/40 font-russo text-xs uppercase tracking-widest text-green-400 hover:bg-green-500/10 transition-colors"
+                >
+                  📊 Открыть в Google Таблице
+                </button>
+              </div>
             </div>
 
             {leads.length === 0 && !leadsLoading && (

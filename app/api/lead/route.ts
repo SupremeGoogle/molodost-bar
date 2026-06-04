@@ -53,7 +53,11 @@ async function saveLead(lead: Lead) {
   const leads = readLeads()
   leads.unshift(lead) // newest first
   const json = JSON.stringify(leads, null, 2)
-  fs.writeFileSync(LEADS_PATH, json, 'utf-8')
+  try {
+    fs.writeFileSync(LEADS_PATH, json, 'utf-8')
+  } catch (err: any) {
+    if (err?.code !== 'EROFS') throw err
+  }
   // Push to GitHub so leads persist on Vercel
   await pushFile('content/leads.json', json, `📥 Новая заявка от ${lead.name}`)
 }
@@ -120,7 +124,11 @@ export async function PATCH(req: Request) {
     if (!lead) return NextResponse.json({ error: 'Not found' }, { status: 404 })
     lead.status = status
     const json = JSON.stringify(leads, null, 2)
-    fs.writeFileSync(LEADS_PATH, json, 'utf-8')
+    try {
+      fs.writeFileSync(LEADS_PATH, json, 'utf-8')
+    } catch (err: any) {
+      if (err?.code !== 'EROFS') throw err
+    }
     await pushFile('content/leads.json', json, `✏️ Статус заявки обновлён`)
     return NextResponse.json({ ok: true })
   } catch (err) {
