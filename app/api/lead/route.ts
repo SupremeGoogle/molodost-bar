@@ -10,22 +10,7 @@ interface LeadData {
   source?: string
 }
 
-async function sendToGoogleSheets(data: LeadData) {
-  const url = process.env.GOOGLE_SCRIPT_URL
-  if (!url) return
-
-  await fetch(url, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(data),
-  })
-}
-
-async function sendToTelegram(data: LeadData) {
-  const token = process.env.TELEGRAM_BOT_TOKEN
-  const chatId = process.env.TELEGRAM_CHAT_ID
-  if (!token || !chatId) return
-
+function buildTgMessage(data: LeadData): string {
   const typeEmoji: Record<string, string> = {
     'Бронирование стола': '🪑',
     'Мероприятие': '🎉',
@@ -38,21 +23,38 @@ async function sendToTelegram(data: LeadData) {
     ``,
     `👤 *Имя:* ${data.name}`,
     `📞 *Телефон:* ${data.phone}`,
-    `${typeEmoji[data.type] || '📋'} *Тип:* ${data.type}`,
+    `${typeEmoji[data.type] ?? '📋'} *Тип:* ${data.type}`,
     data.guests ? `👥 *Гостей:* ${data.guests}` : '',
-    data.date ? `📅 *Дата:* ${data.date}` : '',
+    data.date   ? `📅 *Дата:* ${data.date}` : '',
     data.message ? `💬 *Сообщение:* ${data.message}` : '',
-    `🌐 *Источник:* ${data.source || 'Сайт'}`,
-  ].filter(Boolean).join('\n')
+    `🌐 *Источник:* ${data.source ?? 'Сайт'}`,
+  ].filter(Boolean)
 
-  await fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
+  return lines.join('\n')
+}
+
+async function sendToGoogleSheets(data: LeadData) {
+  const url = process.env.GOOGLE_SCRIPT_URL
+  if (!url) return
+  await fetch(url, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      chat_id: chatId,
-      text: lines,
-      parse_mode: 'Markdown',
-    }),
+    body: JSON.stringify(data),
+  })
+}
+
+async function broadcastViaClouflare(message: string) {
+  const workerUrl = process.env.CLOUDFLARE_WORKER_URL
+  const secret    = process.env.CLOUDFLARE_BROADCAST_SECRET
+  if (!workerUrl || !secret) return
+
+  await fetch(`${workerUrl}/broadcast`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${secret}`,
+    },
+    body: JSON.stringify({ message }),
   })
 }
 
@@ -64,14 +66,16 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Имя и телефон обязательны' }, { status: 400 })
     }
 
+    const message = buildTgMessage(data)
+
     await Promise.all([
       sendToGoogleSheets(data),
-      sendToTelegram(data),
+      broadcastViaClouflare(message),
     ])
 
     return NextResponse.json({ ok: true })
   } catch (err) {
-    const message = err instanceof Error ? err.message : 'Unknown error'
-    return NextResponse.json({ error: message }, { status: 500 })
+    const msg = err instanceof Error ? err.message : 'Unknown error'
+    return NextResponse.json({ error: msg }, { status: 500 })
   }
 }

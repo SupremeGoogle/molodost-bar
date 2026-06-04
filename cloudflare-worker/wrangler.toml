@@ -1,0 +1,13 @@
+name = "tg-molodost"
+main = "src/index.ts"
+compatibility_date = "2024-09-23"
+
+# KV-хранилище подписчиков
+# После `wrangler kv:namespace create SUBSCRIBERS` — вставить id ниже
+[[kv_namespaces]]
+binding = "SUBSCRIBERS"
+id = "ВСТАВИТЬ_KV_NAMESPACE_ID"
+
+# Секреты задаются командой:
+#   wrangler secret put TELEGRAM_BOT_TOKEN
+#   wrangler secret put BROADCAST_SECRET
