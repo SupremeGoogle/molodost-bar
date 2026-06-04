@@ -12,9 +12,13 @@ type SiteData = {
   reviews: { title: string; yandex_url: string; items: { author: string; rating: number; text: string; date: string }[] }
   contacts: { phone: string; address: string; telegram: string; instagram: string; yandex_maps: string }
   footer: { legal: string; legal_address: string }
+  admin: { google_sheets_url: string }
 }
 
-type Tab = 'hero' | 'gallery' | 'price' | 'hours' | 'reviews' | 'contacts'
+type Tab = 'hero' | 'gallery' | 'price' | 'hours' | 'reviews' | 'contacts' | 'system'
+
+type EnvStatus = { ok: boolean; hint: string }
+type DebugResult = { allOk: boolean; vars: Record<string, EnvStatus> } | null
 
 function Pill({ label, active, onClick }: { label: string; active: boolean; onClick: () => void }) {
   return (
@@ -39,6 +43,9 @@ export default function AdminPage() {
   const [status, setStatus] = useState<{ type: 'idle' | 'saving' | 'ok' | 'error'; msg: string }>({ type: 'idle', msg: '' })
   const fileInputRef = useRef<HTMLInputElement>(null)
   const [uploadTarget, setUploadTarget] = useState<'gallery' | 'price'>('gallery')
+  const [debugData, setDebugData] = useState<DebugResult>(null)
+  const [debugLoading, setDebugLoading] = useState(false)
+  const [testResult, setTestResult] = useState<Record<string, string>>({})
 
   useEffect(() => {
     if (sessionStorage.getItem('admin_auth') === '1') setAuthed(true)
@@ -150,6 +157,30 @@ export default function AdminPage() {
     set([section, 'images'], imgs)
   }
 
+  const runDebug = async () => {
+    setDebugLoading(true)
+    const res = await fetch('/api/debug')
+    const json = await res.json()
+    setDebugData(json)
+    setDebugLoading(false)
+  }
+
+  const sendTest = async (type: 'telegram' | 'sheets') => {
+    setTestResult((p) => ({ ...p, [type]: 'sending' }))
+    const res = await fetch('/api/debug', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ type }),
+    })
+    const json = await res.json()
+    setTestResult((p) => ({
+      ...p,
+      [type]: json.ok
+        ? `✅ Успешно! ${JSON.stringify(json.result ?? '')}`
+        : `❌ Ошибка: ${json.error}`,
+    }))
+  }
+
   // ---- Login screen ----
   if (!authed) {
     return (
@@ -205,6 +236,7 @@ export default function AdminPage() {
     { id: 'hours', label: 'Часы' },
     { id: 'reviews', label: 'Отзывы' },
     { id: 'contacts', label: 'Контакты' },
+    { id: 'system', label: '⚙ Система' },
   ]
 
   return (
@@ -394,6 +426,126 @@ export default function AdminPage() {
             <h3 className="font-russo text-sm uppercase text-soviet-red tracking-wider mt-6">Подвал сайта</h3>
             <Field label="Юридические реквизиты" value={data.footer.legal} onChange={(v) => set(['footer', 'legal'], v)} />
             <Field label="Юридический адрес" value={data.footer.legal_address} onChange={(v) => set(['footer', 'legal_address'], v)} />
+          </div>
+        )}
+
+        {/* ===== SYSTEM ===== */}
+        {tab === 'system' && (
+          <div className="space-y-8">
+            <h2 className="font-russo text-xl uppercase text-aged-cream tracking-wider border-b border-soviet-red/30 pb-3">
+              ⚙ Система и интеграции
+            </h2>
+
+            {/* Google Sheets link */}
+            <div className="border border-white/10 p-6 space-y-4">
+              <h3 className="font-russo text-sm uppercase text-soviet-red tracking-wider">Google Таблица с заявками</h3>
+              <Field
+                label="Ссылка на Google Таблицу (для быстрого открытия)"
+                value={data.admin?.google_sheets_url ?? ''}
+                onChange={(v) => set(['admin', 'google_sheets_url'], v)}
+              />
+              {data.admin?.google_sheets_url ? (
+                <a
+                  href={data.admin.google_sheets_url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2 px-6 py-3 bg-green-700 font-russo text-xs uppercase tracking-widest text-white hover:bg-green-600 transition-colors"
+                >
+                  📊 Открыть таблицу заявок ↗
+                </a>
+              ) : (
+                <p className="font-pt text-xs text-white/30">
+                  Вставьте ссылку выше → сохраните → появится кнопка открытия
+                </p>
+              )}
+            </div>
+
+            {/* Env check */}
+            <div className="border border-white/10 p-6 space-y-4">
+              <div className="flex items-center justify-between">
+                <h3 className="font-russo text-sm uppercase text-soviet-red tracking-wider">Проверка переменных окружения</h3>
+                <button
+                  onClick={runDebug}
+                  disabled={debugLoading}
+                  className="px-4 py-2 border border-white/20 font-russo text-xs uppercase tracking-widest text-white/50 hover:border-soviet-red hover:text-soviet-red transition-colors disabled:opacity-40"
+                >
+                  {debugLoading ? 'Проверяю...' : '🔍 Проверить'}
+                </button>
+              </div>
+              {debugData && (
+                <div className="space-y-2">
+                  {Object.entries(debugData.vars).map(([key, val]) => (
+                    <div key={key} className="flex items-start gap-3 py-2 border-b border-white/5 last:border-0">
+                      <span className={`text-lg leading-none mt-0.5 ${val.ok ? 'text-green-400' : 'text-soviet-red'}`}>
+                        {val.ok ? '✓' : '✗'}
+                      </span>
+                      <div>
+                        <p className="font-russo text-xs uppercase tracking-wider text-white/70">{key}</p>
+                        {!val.ok && <p className="font-pt text-xs text-soviet-red/70 mt-0.5">{val.hint}</p>}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* Test buttons */}
+            <div className="border border-white/10 p-6 space-y-4">
+              <h3 className="font-russo text-sm uppercase text-soviet-red tracking-wider">Тест интеграций</h3>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {/* Telegram test */}
+                <div className="space-y-2">
+                  <button
+                    onClick={() => sendTest('telegram')}
+                    disabled={testResult.telegram === 'sending'}
+                    className="w-full py-3 border border-blue-500/40 font-russo text-xs uppercase tracking-widest text-blue-400 hover:bg-blue-500/10 transition-colors disabled:opacity-40"
+                  >
+                    {testResult.telegram === 'sending' ? '⏳ Отправляю...' : '📱 Тест Telegram рассылки'}
+                  </button>
+                  {testResult.telegram && testResult.telegram !== 'sending' && (
+                    <p className={`font-pt text-xs break-all ${testResult.telegram.startsWith('✅') ? 'text-green-400' : 'text-soviet-red'}`}>
+                      {testResult.telegram}
+                    </p>
+                  )}
+                  <p className="font-pt text-[11px] text-white/25 leading-relaxed">
+                    Отправит тест всем кто написал /molodost боту. Если 0 подписчиков — напиши боту сам.
+                  </p>
+                </div>
+
+                {/* Google Sheets test */}
+                <div className="space-y-2">
+                  <button
+                    onClick={() => sendTest('sheets')}
+                    disabled={testResult.sheets === 'sending'}
+                    className="w-full py-3 border border-green-500/40 font-russo text-xs uppercase tracking-widest text-green-400 hover:bg-green-500/10 transition-colors disabled:opacity-40"
+                  >
+                    {testResult.sheets === 'sending' ? '⏳ Отправляю...' : '📊 Тест Google Таблицы'}
+                  </button>
+                  {testResult.sheets && testResult.sheets !== 'sending' && (
+                    <p className={`font-pt text-xs break-all ${testResult.sheets.startsWith('✅') ? 'text-green-400' : 'text-soviet-red'}`}>
+                      {testResult.sheets}
+                    </p>
+                  )}
+                  <p className="font-pt text-[11px] text-white/25 leading-relaxed">
+                    Добавит тестовую строку в Google Таблицу.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* Instructions */}
+            <div className="border border-yellow-500/20 bg-yellow-500/5 p-6">
+              <h3 className="font-russo text-sm uppercase text-yellow-400 tracking-wider mb-4">📋 Чеклист настройки</h3>
+              <ol className="space-y-3 font-pt text-sm text-white/50 list-decimal list-inside">
+                <li>Задеплоить Google Apps Script → получить URL → вставить в Vercel как <code className="text-yellow-400">GOOGLE_SCRIPT_URL</code></li>
+                <li>Вставить ссылку на Google Таблицу выше → Сохранить</li>
+                <li>Убедиться что <code className="text-yellow-400">CLOUDFLARE_BROADCAST_SECRET</code> на Vercel совпадает с тем что в <code>wrangler secret put BROADCAST_SECRET</code></li>
+                <li>Написать боту <code className="text-yellow-400">/molodost</code> — подписаться на уведомления</li>
+                <li>Нажать «Тест Telegram рассылки» → получить сообщение</li>
+                <li>Нажать «Тест Google Таблицы» → увидеть строку в таблице</li>
+              </ol>
+            </div>
           </div>
         )}
 
