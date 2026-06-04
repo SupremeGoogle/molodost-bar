@@ -293,6 +293,9 @@ export default function AdminPage() {
             <a href="/" target="_blank" className="px-4 py-2 border border-white/20 font-russo text-xs uppercase tracking-widest text-white/50 hover:border-soviet-red hover:text-soviet-red transition-colors">
               Сайт ↗
             </a>
+            <span className="font-pt text-[10px] text-white/20 hidden md:inline">
+              ⏱ ~1 мин
+            </span>
           </div>
         </div>
       </header>
@@ -311,10 +314,6 @@ export default function AdminPage() {
             <div className="flex flex-wrap items-center justify-between gap-3 border-b border-soviet-red/30 pb-3">
               <h2 className="font-russo text-xl uppercase text-aged-cream tracking-wider">📥 Заявки с сайта</h2>
               <div className="flex gap-2 flex-wrap">
-                <button onClick={loadLeads} disabled={leadsLoading}
-                  className="px-4 py-2 border border-white/20 font-russo text-xs uppercase tracking-widest text-white/50 hover:border-soviet-red hover:text-soviet-red transition-colors disabled:opacity-40">
-                  {leadsLoading ? 'Загружаю...' : '🔄 Обновить'}
-                </button>
                 {data.admin?.google_sheets_url ? (
                   <a
                     href={data.admin.google_sheets_url}
@@ -331,64 +330,12 @@ export default function AdminPage() {
                 )}
               </div>
             </div>
-
-            {leads.length === 0 && !leadsLoading && (
-              <div className="text-center py-20 border border-dashed border-white/10">
-                <p className="font-russo text-2xl text-white/10 uppercase mb-3">Нет заявок</p>
-                <p className="font-pt text-sm text-white/25">Нажмите «Обновить» или оставьте тестовую заявку на сайте</p>
-              </div>
-            )}
-
-            {leads.map((lead) => {
-              const statusColors: Record<Lead['status'], string> = {
-                new: 'border-soviet-red text-soviet-red',
-                called: 'border-yellow-500 text-yellow-400',
-                done: 'border-green-500 text-green-400',
-              }
-              const statusLabels: Record<Lead['status'], string> = { new: 'Новая', called: 'Позвонили', done: 'Готово' }
-              const date = new Date(lead.createdAt)
-              const dateStr = `${date.getDate().toString().padStart(2,'0')}.${(date.getMonth()+1).toString().padStart(2,'0')} ${date.getHours().toString().padStart(2,'0')}:${date.getMinutes().toString().padStart(2,'0')}`
-
-              return (
-                <div key={lead.id} className={`border p-5 relative transition-colors duration-200 ${
-                  lead.status === 'new' ? 'border-soviet-red/40 bg-soviet-red/3' :
-                  lead.status === 'called' ? 'border-yellow-500/30' : 'border-white/8 opacity-60'
-                }`}>
-                  <div className="flex flex-wrap items-start gap-4 justify-between">
-                    <div>
-                      <div className="flex items-center gap-3 mb-2">
-                        <span className="font-russo text-lg text-aged-cream">{lead.name}</span>
-                        <span className={`text-xs font-russo uppercase px-2 py-0.5 border ${statusColors[lead.status]}`}>
-                          {statusLabels[lead.status]}
-                        </span>
-                      </div>
-                      <a href={`tel:${lead.phone.replace(/\D/g,'')}`}
-                        className="font-russo text-xl text-soviet-red hover:underline block mb-3">
-                        {lead.phone}
-                      </a>
-                      <div className="flex flex-wrap gap-x-6 gap-y-1 font-pt text-sm text-white/40">
-                        <span>📋 {lead.type}</span>
-                        {lead.guests && <span>👥 {lead.guests} гостей</span>}
-                        {lead.date && <span>📅 {lead.date}</span>}
-                        {lead.message && <span className="block w-full text-white/30 italic">«{lead.message}»</span>}
-                      </div>
-                    </div>
-                    <div className="flex flex-col items-end gap-2">
-                      <span className="font-pt text-xs text-white/25">{dateStr}</span>
-                      <div className="flex gap-2">
-                        {(['new', 'called', 'done'] as Lead['status'][]).map((s) => (
-                          <button key={s} onClick={() => updateLeadStatus(lead.id, s)}
-                            disabled={lead.status === s}
-                            className={`px-2.5 py-1 font-russo text-[10px] uppercase tracking-wider border transition-colors disabled:opacity-30 ${statusColors[s]}`}>
-                            {statusLabels[s]}
-                          </button>
-                        ))}
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              )
-            })}
+            <div className="border border-white/10 p-10 text-center">
+              <p className="font-russo text-2xl text-white/20 uppercase mb-4">📋 Все заявки в Google Таблице</p>
+              <p className="font-pt text-sm text-white/40 max-w-md mx-auto">
+                После сохранения изменений сайт обновится через ~1 минуту (Vercel пересборка).
+              </p>
+            </div>
           </div>
         )}
 
@@ -663,7 +610,10 @@ export default function AdminPage() {
         )}
 
         {/* Save bar */}
-        <div className="mt-12 border-t border-soviet-red/20 pt-6 flex justify-end">
+        <div className="mt-12 border-t border-soviet-red/20 pt-6 flex items-center justify-between">
+          <p className="font-pt text-xs text-white/30">
+            ⏱ Изменения появятся на сайте через ~1 минуту (пересборка Vercel)
+          </p>
           <button
             onClick={save}
             disabled={status.type === 'saving'}
