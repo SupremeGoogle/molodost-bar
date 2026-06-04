@@ -315,18 +315,20 @@ export default function AdminPage() {
                   className="px-4 py-2 border border-white/20 font-russo text-xs uppercase tracking-widest text-white/50 hover:border-soviet-red hover:text-soviet-red transition-colors disabled:opacity-40">
                   {leadsLoading ? 'Загружаю...' : '🔄 Обновить'}
                 </button>
-                <button
-                  onClick={() => {
-                    const csvUrl = `${window.location.origin}/api/leads.csv?token=${encodeURIComponent(prompt('Введите пароль админки:') || '')}`
-                    const sheetsUrl = `https://docs.google.com/spreadsheets/create`
-                    navigator.clipboard.writeText(`=IMPORTDATA("${csvUrl}")`)
-                    window.open(sheetsUrl, '_blank')
-                    alert('Формула скопирована!\n\nВ Google Таблице:\n1. Вставь формулу в ячейку A1 (Ctrl+V)\n2. Таблица будет автообновляться')
-                  }}
-                  className="px-4 py-2 border border-green-500/40 font-russo text-xs uppercase tracking-widest text-green-400 hover:bg-green-500/10 transition-colors"
-                >
-                  📊 Открыть в Google Таблице
-                </button>
+                {data.admin?.google_sheets_url ? (
+                  <a
+                    href={data.admin.google_sheets_url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-2 px-4 py-2 border border-green-500/40 font-russo text-xs uppercase tracking-widest text-green-400 hover:bg-green-500/10 transition-colors"
+                  >
+                    📊 Открыть Google Таблицу ↗
+                  </a>
+                ) : (
+                  <span className="font-pt text-xs text-white/30 py-2">
+                    Ссылка не указана. Вставьте её во вкладке «⚙ Система».
+                  </span>
+                )}
               </div>
             </div>
 
