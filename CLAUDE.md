@@ -2,53 +2,78 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
-## Project Overview
+## Project
 
-Website for **«Молодость»** — a cafe-bar (кафе-бар / буфет) in Lipetsk, Russia. The site is being built from scratch; there is currently no framework or toolchain chosen.
+Website for **«Молодость»** — кафе-бар в Липецке, Russia. Next.js 14, Tailwind CSS, TypeScript. Soviet/USSR 90s aesthetic.
+
+**Live repo:** https://github.com/SupremeGoogle/molodost-bar  
+**Admin panel:** `/admin` (password: stored separately, not in code)
+
+## Commands
+
+```bash
+npm run dev      # dev server (http://localhost:3000)
+npm run build    # production build
+npm run lint     # eslint
+```
+
+If `next` command not found, use `node_modules/.bin/next dev`.
+
+## Architecture
+
+Content is stored in `content/data.json` — the single source of truth for all editable text, images, hours, reviews, and contacts.
+
+```
+app/
+  page.tsx          — main page, reads data.json via getContent()
+  admin/page.tsx    — password-protected admin panel (client component)
+  api/content/      — GET/POST data.json
+  api/push/         — saves data.json then pushes to GitHub via API
+  api/upload/       — uploads image file to GitHub, saves locally
+components/         — one component per section (Hero, Gallery, PriceMenu, …)
+lib/
+  content.ts        — fs read/write for content/data.json
+  github.ts         — GitHub REST API helpers (getFileSha, pushFile, pushBinaryFile, deleteFile)
+content/data.json   — all site content (edit via admin or directly)
+public/
+  gallery/          — gallery photos (photo1.jpg … photo6.jpg)
+  price/            — price list pages (1.jpg … 6.jpg)
+```
+
+## Admin → GitHub push flow
+
+1. Admin edits content in `/admin`
+2. Click "Сохранить → GitHub"
+3. `POST /api/push` → saves `content/data.json` locally → calls GitHub Contents API PUT
+4. GitHub triggers Vercel redeploy → site updates automatically
+
+## Environment variables
+
+```
+GITHUB_TOKEN=<personal access token with repo write>
+GITHUB_OWNER=SupremeGoogle
+GITHUB_REPO=molodost-bar
+```
+
+Set in `.env.local` locally. On Vercel: add as Environment Variables in project settings.
 
 ## Business Information
 
-**Name:** Кафе-бар «Молодость»  
-**Address:** г. Липецк, ул. Стаханова А.Г., д. 49А  
-**Legal entity:** ООО «МАЯК», ИНН 4823072199, ОГРН 1164827057273  
-**Legal address:** г. Липецк, Грязинское шоссе, вл. 9А, каб. 12
+**Address:** ул. А.Г. Стаханова, 49А (этаж 1), г. Липецк  
+**Phone:** +7 (4742) 39-03-93  
+**Legal:** ООО «МАЯК», ИНН 4823072199, ОГРН 1164827057273  
+**Telegram:** https://t.me/molodost48  
+**Instagram:** https://www.instagram.com/molodost.bar48
 
-**Working hours:**
-| Day | Open | Close |
-|-----|------|-------|
-| Пн–Чт | 12:00 | 00:00 |
-| Пт | 12:00 | 02:00 |
-| Сб | 14:00 | 02:00 |
-| Вс | 14:00 | 00:00 |
+## Design tokens (Tailwind)
 
-## Brand & Visual Style
+| Token | Value | Use |
+|-------|-------|-----|
+| `soviet-red` | `#C00020` | primary accent, CTA buttons |
+| `soviet-dark` | `#0D0D0D` | main background |
+| `soviet-dark2` | `#141414` | secondary background |
+| `aged-cream` | `#F0E8D5` | headings, aged-paper sections |
+| `soviet-gold` | `#C9A84C` | star ratings |
+| `dark-red` | `#8B0000` | hover state |
 
-- **Color palette:** Crimson/red (`#D0001E` range) + black + white — matches logo and promotional materials
-- **Aesthetic:** Soviet nostalgia — carpets, old newspapers, grainy film photography, handwritten signage, Soviet-era glassware (гранёный стакан)
-- **Tagline:** «Молодость прощает всё!»
-- **Tone:** Warm, informal, blue-collar friendly; young crowd but nostalgic vibe
-- Key offering messaging: «Настойки, 100 граненых и закуска. Без лишнего — только вкус и настроение.»
-
-## Available Assets
-
-All source assets live in the project root:
-
-- `logo.jpg` — main logo (crimson «МОЛОДОСТЬ» wordmark + «Кафе-бар» script)
-- `график работы.png` — working hours poster (can be used as design reference)
-- `Галлерея/` — 6 interior/lifestyle photos suitable for the site gallery:
-  - Interior wall mural («Молодость прощает всё!»)
-  - Sports team promo shot (neon sign «МЫ В МОЛОДОСТИ»)
-  - Food/drink table scene (film photo style)
-  - Beer/draft beer collage (4-panel)
-  - Bartender promo poster (настойки, Wednesday special)
-  - Interior dining scene with events board
-
-## Content Sections to Build
-
-Based on assets and business type, the site should cover:
-1. Hero / brand statement
-2. Menu highlights (настойки, beer on tap, food)
-3. Events / план мероприятий
-4. Gallery
-5. Working hours
-6. Contacts & address (with map)
+Fonts: `font-russo` = Russo One (headlines, Cyrillic), `font-pt` = PT Sans (body).

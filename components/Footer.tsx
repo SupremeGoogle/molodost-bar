@@ -19,7 +19,7 @@ export default function Footer({ footer, contacts }: { footer: FooterData; conta
         <div className="grid grid-cols-1 md:grid-cols-3 gap-10 mb-10">
           {/* Brand */}
           <div>
-            <Image src="/logo.jpg" alt="Молодость" width={160} height={56} className="w-36 object-contain invert mb-4" />
+            <Image src="/logo.jpg" alt="Молодость" width={160} height={56} className="w-36 object-contain mb-4" style={{ mixBlendMode: 'lighten' }} />
             <p className="font-pt text-sm text-white/40 leading-relaxed">
               Кафе-бар «Молодость» — место, где время останавливается.
             </p>

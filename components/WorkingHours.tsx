@@ -71,7 +71,8 @@ export default function WorkingHours({ data }: { data: HoursData }) {
               alt="Молодость"
               width={200}
               height={70}
-              className="mx-auto w-40 md:w-48 object-contain mb-4 invert"
+              className="mx-auto w-40 md:w-48 object-contain mb-4"
+              style={{ mixBlendMode: 'lighten' }}
             />
             <p className="font-pt text-xs text-white/40 uppercase tracking-widest">Буфет · Кафе-бар</p>
           </div>

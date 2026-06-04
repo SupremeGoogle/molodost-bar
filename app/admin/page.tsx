@@ -144,7 +144,7 @@ export default function AdminPage() {
       <div className="min-h-screen bg-soviet-dark flex items-center justify-center px-4">
         <div className="w-full max-w-sm">
           <div className="text-center mb-8">
-            <Image src="/logo.jpg" alt="Молодость" width={160} height={56} className="mx-auto w-36 invert mb-6" />
+            <Image src="/logo.jpg" alt="Молодость" width={160} height={56} className="mx-auto w-36 mb-6" style={{ mixBlendMode: 'lighten' }} />
             <h1 className="font-russo text-2xl uppercase text-aged-cream tracking-widest">Админ панель</h1>
             <div className="w-10 h-0.5 bg-soviet-red mx-auto mt-3" />
           </div>
@@ -200,7 +200,7 @@ export default function AdminPage() {
       <header className="bg-black border-b border-soviet-red/30 sticky top-0 z-50">
         <div className="max-w-6xl mx-auto px-4 h-14 flex items-center justify-between">
           <div className="flex items-center gap-4">
-            <Image src="/logo.jpg" alt="Молодость" width={100} height={36} className="h-8 w-auto invert" />
+            <Image src="/logo.jpg" alt="Молодость" width={100} height={36} className="h-8 w-auto" style={{ mixBlendMode: 'lighten' }} />
             <span className="font-russo text-xs uppercase tracking-widest text-soviet-red">Админ</span>
           </div>
           <div className="flex items-center gap-3">
