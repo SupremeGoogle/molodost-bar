@@ -1,4 +1,4 @@
-# AGENTS.md — molodost.bar48
+# molodost.bar48 — архитектура
 
 ## Commands
 ```bash
